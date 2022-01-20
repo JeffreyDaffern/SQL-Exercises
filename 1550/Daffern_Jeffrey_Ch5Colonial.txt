@@ -1,0 +1,496 @@
+mysql> 
+mysql> USE colonial;
+Database changed
+mysql> 
+mysql> #1. PROGRAM DOCUMENTATION
+mysql> 
+mysql> # Jeffrey Daffern
+mysql> 
+mysql> # CSIS 1550 - 501
+mysql> 
+mysql> # Ch.5 - Multi-table Queries Using Colonial Adventure Tours Database
+mysql> 
+mysql> # 1. For each reservation, list the reservation ID, trip ID, customer number, and customer last
+mysql> # name. Order the results by customer last name.
+mysql> 
+mysql> SELECT reservation_id, trip_id, reservation.customer_num, last_name
+    -> FROM reservation, customer
+    -> WHERE reservation.customer_num = customer.customer_num
+    -> ORDER BY last_name;
++----------------+---------+--------------+---------------+
+| reservation_id | trip_id | customer_num | last_name     |
++----------------+---------+--------------+---------------+
+| 1600024        |      38 | 121          | Bretton-Borak |
+| 1600016        |      11 | 121          | Bretton-Borak |
+| 1600018        |      38 | 126          | Brown         |
+| 1600026        |      12 | 126          | Brown         |
+| 1600019        |      25 | 124          | Busa          |
+| 1600020        |      28 | 124          | Busa          |
+| 1600009        |      38 | 109          | Caron         |
+| 1600014        |      12 | 119          | Chau          |
+| 1600022        |      21 | 119          | Chau          |
+| 1600015        |      10 | 120          | Gernowski     |
+| 1600029        |       4 | 120          | Gernowski     |
+| 1600004        |      26 | 104          | Goff          |
+| 1600030        |      15 | 104          | Goff          |
+| 1600017        |      39 | 122          | Hefferson,    |
+| 1600021        |      32 | 112          | Jones         |
+| 1600003        |      28 | 103          | Kasuma        |
+| 1600007        |      22 | 107          | Marchand      |
+| 1600005        |      39 | 105          | McLean        |
+| 1600006        |      32 | 106          | Morontoia     |
+| 1600013        |       8 | 116          | Murakami      |
+| 1600002        |      21 | 101          | Northfold     |
+| 1600001        |      40 | 101          | Northfold     |
+| 1600010        |       2 | 102          | Ocean         |
+| 1600011        |       3 | 102          | Ocean         |
+| 1600025        |      38 | 125          | Peterson      |
+| 1600008        |      28 | 108          | Rulf          |
+| 1600012        |       1 | 115          | Vaccari       |
++----------------+---------+--------------+---------------+
+27 rows in set (0.00 sec)
+
+mysql> 
+mysql> # 2. For each reservation for customer Ryan Goff, list the reservation ID, trip ID, and number
+mysql> # of persons.
+mysql> 
+mysql> SELECT reservation_id, trip_id, num_persons 
+    -> FROM reservation, customer
+    -> WHERE reservation.customer_num = customer.customer_num
+    -> AND (first_name = 'Ryan' AND last_name = 'Goff');
++----------------+---------+-------------+
+| reservation_id | trip_id | num_persons |
++----------------+---------+-------------+
+| 1600004        |      26 |           4 |
+| 1600030        |      15 |           6 |
++----------------+---------+-------------+
+2 rows in set (0.00 sec)
+
+mysql> 
+mysql> # 3. List the trip name of each trip that has Miles Abrams as a guide.
+mysql> 
+mysql> SELECT trip_name
+    -> FROM trip, guide, trip_guides
+    -> WHERE trip.trip_id = trip_guides.trip_id
+    -> AND trip_guides.guide_num = guide.guide_num
+    -> AND (last_name = 'Abrams' AND first_name = 'Miles');
++---------------------------+
+| trip_name                 |
++---------------------------+
+| Mt Ascutney - North Peak  |
+| Long Pond                 |
+| McLennan Reservation Hike |
++---------------------------+
+3 rows in set (0.00 sec)
+
+mysql> 
+mysql> # 4. List the trip name of each trip that has the type Biking and that has Rita Boyers as a
+mysql> # guide.
+mysql> 
+mysql> SELECT trip_name
+    -> FROM trip, guide, trip_guides
+    -> WHERE trip.trip_id = trip_guides.trip_id
+    -> AND trip_guides.guide_num = guide.guide_num
+    -> AND (last_name = 'Boyers' AND first_name = 'Rita')
+    -> AND type = 'Biking';
++------------------------+
+| trip_name              |
++------------------------+
+| Bradbury Mountain Ride |
+| Cadillac Mountain Ride |
+| Mount Battie Ride      |
+| Westfield River Loop   |
++------------------------+
+4 rows in set (0.00 sec)
+
+mysql> 
+mysql> # 5. For each reservation that has a trip date of July 23, 2016, list the customer’s last name,
+mysql> # the trip name, and the start location.
+mysql> 
+mysql> SELECT last_name, trip_name, start_location
+    -> FROM customer, trip, reservation
+    -> WHERE reservation.customer_num = customer.customer_num
+    -> AND reservation.trip_id = trip.trip_id
+    -> AND trip_date = '2016-07-23';
++---------------+--------------------------+----------------+
+| last_name     | trip_name                | start_location |
++---------------+--------------------------+----------------+
+| Gernowski     | Mt. Cardigan - Firescrew | Orange         |
+| Bretton-Borak | Chocorua Lake Tour       | Tamworth       |
++---------------+--------------------------+----------------+
+2 rows in set (0.00 sec)
+
+mysql> 
+mysql> # 6. List the reservation ID, trip ID, and trip date for reservations for a trip in Maine(ME).
+mysql> # Use the IN operator in your query.
+mysql> 
+mysql> SELECT reservation_id, trip_id, trip_date
+    -> FROM reservation
+    -> WHERE trip_id IN(
+    -> SELECT trip_id
+    -> FROM trip
+    -> WHERE state = 'ME');
++----------------+---------+------------+
+| reservation_id | trip_id | trip_date  |
++----------------+---------+------------+
+| 1600007        |      22 | 2016-07-09 |
+| 1600014        |      12 | 2016-10-01 |
+| 1600019        |      25 | 2016-08-29 |
+| 1600026        |      12 | 2016-10-01 |
+| 1600029        |       4 | 2016-09-19 |
++----------------+---------+------------+
+5 rows in set (0.00 sec)
+
+mysql> 
+mysql> # 7. Repeat Exercise 6, but this time use the EXISTS operator in your query.
+mysql> 
+mysql> SELECT reservation_id, trip_id, trip_date
+    -> FROM reservation
+    -> WHERE EXISTS(
+    -> SELECT trip_id
+    -> FROM trip
+    -> WHERE reservation.trip_id = trip.trip_id
+    -> AND state = 'ME');
++----------------+---------+------------+
+| reservation_id | trip_id | trip_date  |
++----------------+---------+------------+
+| 1600007        |      22 | 2016-07-09 |
+| 1600014        |      12 | 2016-10-01 |
+| 1600019        |      25 | 2016-08-29 |
+| 1600026        |      12 | 2016-10-01 |
+| 1600029        |       4 | 2016-09-19 |
++----------------+---------+------------+
+5 rows in set (0.00 sec)
+
+mysql> 
+mysql> # 8. Find the guide last name and guide first name of all guides who can lead a paddling trip.
+mysql> # (Note: The query results should include duplicate values.)
+mysql> 
+mysql> SELECT last_name, first_name
+    -> FROM guide, trip, trip_guides
+    -> WHERE guide.guide_num = trip_guides.guide_num
+    -> AND trip_guides.trip_id = trip.trip_id
+    -> AND type = 'Paddling';
++-----------+------------+
+| last_name | first_name |
++-----------+------------+
+| Stevens   | Lori       |
+| Devon     | Harley     |
+| Kiley     | Susan      |
+| Unser     | Glory      |
+| Devon     | Harley     |
+| Stevens   | Lori       |
+| Unser     | Glory      |
+| Devon     | Harley     |
+| Stevens   | Lori       |
+| Stevens   | Lori       |
+| Kiley     | Susan      |
+| Kiley     | Susan      |
++-----------+------------+
+12 rows in set (0.00 sec)
+
+mysql> 
+mysql> # 9. Repeat Exercise 8 but use aliases for the table names.
+mysql> 
+mysql> SELECT last_name, first_name
+    -> FROM guide g, trip t, trip_guides tg
+    -> WHERE g.guide_num = tg.guide_num
+    -> AND tg.trip_id = t.trip_id
+    -> AND type = 'Paddling';
++-----------+------------+
+| last_name | first_name |
++-----------+------------+
+| Stevens   | Lori       |
+| Devon     | Harley     |
+| Kiley     | Susan      |
+| Unser     | Glory      |
+| Devon     | Harley     |
+| Stevens   | Lori       |
+| Unser     | Glory      |
+| Devon     | Harley     |
+| Stevens   | Lori       |
+| Stevens   | Lori       |
+| Kiley     | Susan      |
+| Kiley     | Susan      |
++-----------+------------+
+12 rows in set (0.00 sec)
+
+mysql> 
+mysql> # 10. List the trip IDs and trip names for each pair of trips that have the same start location.
+mysql> # (For example, one such pair would be trip ID 2 and trip ID 3, because the start location of
+mysql> # both trips is Weathersfield.) The first trip ID listed should be the major sort key, and the
+mysql> # second trip ID should be the minor sort key.
+mysql> 
+mysql> SELECT f.trip_id, f.trip_name, s.trip_id, s.trip_name, f.start_location
+    -> FROM trip f, trip s
+    -> WHERE f.start_location = s.start_location
+    -> AND f.trip_id < s.trip_id
+    -> ORDER BY f.trip_id, s.trip_id;
++---------+--------------------------+---------+-------------------------+----------------+
+| trip_id | trip_name                | trip_id | trip_name               | start_location |
++---------+--------------------------+---------+-------------------------+----------------+
+|       2 | Mt Ascutney - North Peak |       3 | Mt Ascutney - West Peak | Weathersfield  |
+|       9 | Big Rock Cave            |      11 | Chocorua Lake Tour      | Tamworth       |
+|      12 | Cadillac Mountain Ride   |      13 | Cadillac Mountain       | Bar Harbor     |
+|      12 | Cadillac Mountain Ride   |      17 | Huguenot Head Hike      | Bar Harbor     |
+|      12 | Cadillac Mountain Ride   |      37 | Seal Beach Harbor       | Bar Harbor     |
+|      13 | Cadillac Mountain        |      17 | Huguenot Head Hike      | Bar Harbor     |
+|      13 | Cadillac Mountain        |      37 | Seal Beach Harbor       | Bar Harbor     |
+|      17 | Huguenot Head Hike       |      37 | Seal Beach Harbor       | Bar Harbor     |
++---------+--------------------------+---------+-------------------------+----------------+
+8 rows in set (0.00 sec)
+
+mysql> 
+mysql> # 11. Find the trip name of all reservations for hiking trips and sort the results by trip name in
+mysql> # ascending order. 
+mysql> 
+mysql> SELECT trip_name
+    -> FROM trip, reservation
+    -> WHERE trip.trip_id = reservation. trip_id
+    -> AND type = 'Hiking'
+    -> order by trip_name;
++----------------------------------+
+| trip_name                        |
++----------------------------------+
+| Arethusa Falls                   |
+| Black Pond                       |
+| Crawford Path Presidentials Hike |
+| Long Pond                        |
+| Long Pond                        |
+| Mount Cardigan Hike              |
+| Mount Garfield Hike              |
+| Mount Garfield Hike              |
+| Mount Garfield Hike              |
+| Mt Ascutney - North Peak         |
+| Mt Ascutney - West Peak          |
+| Mt. Cardigan - Firescrew         |
+| Wachusett Mountain               |
+| Welch and Dickey Mountains Hike  |
+| Welch and Dickey Mountains Hike  |
++----------------------------------+
+15 rows in set (0.00 sec)
+
+mysql> 
+mysql> # 12. List the number and name of each customer that either lives in the state of New Jersey
+mysql> # (NJ), or that currently has a reservation, or both.
+mysql> 
+mysql> SELECT customer_num, last_name
+    -> FROM customer
+    -> WHERE customer_num IN(
+    -> SELECT customer_num
+    -> FROM reservation)
+    -> OR state = 'NJ';
++--------------+---------------+
+| customer_num | last_name     |
++--------------+---------------+
+| 101          | Northfold     |
+| 102          | Ocean         |
+| 103          | Kasuma        |
+| 104          | Goff          |
+| 105          | McLean        |
+| 106          | Morontoia     |
+| 107          | Marchand      |
+| 108          | Rulf          |
+| 109          | Caron         |
+| 112          | Jones         |
+| 115          | Vaccari       |
+| 116          | Murakami      |
+| 119          | Chau          |
+| 120          | Gernowski     |
+| 121          | Bretton-Borak |
+| 122          | Hefferson,    |
+| 124          | Busa          |
+| 125          | Peterson      |
+| 126          | Brown         |
++--------------+---------------+
+19 rows in set (0.00 sec)
+
+mysql> 
+mysql> # 13. List the number and name of each customer that lives in the state of New Jersey (NJ) and
+mysql> # that currently has a reservation.
+mysql> 
+mysql> SELECT customer_num, last_name
+    -> FROM customer
+    -> WHERE customer_num IN(
+    -> SELECT customer_num
+    -> FROM reservation)
+    -> AND state = 'NJ';
++--------------+-----------+
+| customer_num | last_name |
++--------------+-----------+
+| 115          | Vaccari   |
++--------------+-----------+
+1 row in set (0.00 sec)
+
+mysql> 
+mysql> # 14. Find the trip ID and trip name for each trip whose maximum group size is greater than the
+mysql> # maximum group size of every trip that has the type Hiking.
+mysql> 
+mysql> SELECT trip_id, trip_name
+    -> FROM trip
+    -> WHERE max_grp_size > ALL(
+    -> SELECT max_grp_size
+    -> FROM trip
+    -> WHERE type = 'Hiking');
++---------+-------------------+
+| trip_id | trip_name         |
++---------+-------------------+
+|      38 | Sawyer River Ride |
++---------+-------------------+
+1 row in set (0.00 sec)
+
+mysql> 
+mysql> # 15. Find the trip ID and trip name for each trip whose maximum group size is greater than the
+mysql> # maximum group size of at least one trip that has the type Biking.
+mysql> 
+mysql> SELECT trip_id, trip_name
+    -> FROM trip
+    -> WHERE max_grp_size > ANY(
+    -> SELECT max_grp_size
+    -> FROM trip
+    -> WHERE type = 'Biking');
++---------+---------------------------------+
+| trip_id | trip_name                       |
++---------+---------------------------------+
+|       1 | Arethusa Falls                  |
+|       3 | Mt Ascutney - West Peak         |
+|       5 | Baldpate Mountain               |
+|       8 | Black Pond                      |
+|       9 | Big Rock Cave                   |
+|      11 | Chocorua Lake Tour              |
+|      12 | Cadillac Mountain Ride          |
+|      16 | Cherry Pond                     |
+|      17 | Huguenot Head Hike              |
+|      20 | Lake Mephremagog Tour           |
+|      21 | Long Pond                       |
+|      22 | Long Pond Tour                  |
+|      23 | Lower Pond Tour                 |
+|      26 | Mount Cardigan Hike             |
+|      27 | Mt. Chocorua                    |
+|      28 | Mount Garfield Hike             |
+|      29 | Metacomet-Monadnock Trail Hike  |
+|      30 | McLennan Reservation Hike       |
+|      31 | Missisquoi River - VT           |
+|      32 | Northern Forest Canoe Trail     |
+|      34 | Pontook Reservoir Tour          |
+|      35 | Pisgah State Park Ride          |
+|      36 | Pondicherry Trail Ride          |
+|      37 | Seal Beach Harbor               |
+|      38 | Sawyer River Ride               |
+|      39 | Welch and Dickey Mountains Hike |
+|      41 | Westfield River Loop            |
++---------+---------------------------------+
+27 rows in set (0.00 sec)
+
+mysql> 
+mysql> # 16. Display the trip ID, trip name, and reservation ID for all trips. All trips should be 
+mysql> # included in the result. For those trips that currently do not have reservations, the 
+mysql> # reservation ID should be left blank. Order the results by trip ID.
+mysql> 
+mysql> SELECT trip.trip_id, trip_name, reservation_id
+    -> FROM trip
+    -> LEFT JOIN reservation
+    -> ON trip.trip_id = reservation.trip_id
+    -> ORDER BY trip_id;
++---------+----------------------------------+----------------+
+| trip_id | trip_name                        | reservation_id |
++---------+----------------------------------+----------------+
+|       1 | Arethusa Falls                   | 1600012        |
+|       2 | Mt Ascutney - North Peak         | 1600010        |
+|       3 | Mt Ascutney - West Peak          | 1600011        |
+|       4 | Bradbury Mountain Ride           | 1600029        |
+|       5 | Baldpate Mountain                | NULL           |
+|       6 | Blueberry Mountain               | NULL           |
+|       7 | Bloomfield - Maidstone           | NULL           |
+|       8 | Black Pond                       | 1600013        |
+|       9 | Big Rock Cave                    | NULL           |
+|      10 | Mt. Cardigan - Firescrew         | 1600015        |
+|      11 | Chocorua Lake Tour               | 1600016        |
+|      12 | Cadillac Mountain Ride           | 1600014        |
+|      12 | Cadillac Mountain Ride           | 1600026        |
+|      13 | Cadillac Mountain                | NULL           |
+|      14 | Cannon Mtn                       | NULL           |
+|      15 | Crawford Path Presidentials Hike | 1600030        |
+|      16 | Cherry Pond                      | NULL           |
+|      17 | Huguenot Head Hike               | NULL           |
+|      18 | Low Bald Spot Hike               | NULL           |
+|      19 | Mason's Farm                     | NULL           |
+|      20 | Lake Mephremagog Tour            | NULL           |
+|      21 | Long Pond                        | 1600002        |
+|      21 | Long Pond                        | 1600022        |
+|      22 | Long Pond Tour                   | 1600007        |
+|      23 | Lower Pond Tour                  | NULL           |
+|      24 | Mt Adams                         | NULL           |
+|      25 | Mount Battie Ride                | 1600019        |
+|      26 | Mount Cardigan Hike              | 1600004        |
+|      27 | Mt. Chocorua                     | NULL           |
+|      28 | Mount Garfield Hike              | 1600003        |
+|      28 | Mount Garfield Hike              | 1600008        |
+|      28 | Mount Garfield Hike              | 1600020        |
+|      29 | Metacomet-Monadnock Trail Hike   | NULL           |
+|      30 | McLennan Reservation Hike        | NULL           |
+|      31 | Missisquoi River - VT            | NULL           |
+|      32 | Northern Forest Canoe Trail      | 1600006        |
+|      32 | Northern Forest Canoe Trail      | 1600021        |
+|      33 | Park Loop Ride                   | NULL           |
+|      34 | Pontook Reservoir Tour           | NULL           |
+|      35 | Pisgah State Park Ride           | NULL           |
+|      36 | Pondicherry Trail Ride           | NULL           |
+|      37 | Seal Beach Harbor                | NULL           |
+|      38 | Sawyer River Ride                | 1600018        |
+|      38 | Sawyer River Ride                | 1600024        |
+|      38 | Sawyer River Ride                | 1600009        |
+|      38 | Sawyer River Ride                | 1600025        |
+|      39 | Welch and Dickey Mountains Hike  | 1600005        |
+|      39 | Welch and Dickey Mountains Hike  | 1600017        |
+|      40 | Wachusett Mountain               | 1600001        |
+|      41 | Westfield River Loop             | NULL           |
++---------+----------------------------------+----------------+
+50 rows in set (0.00 sec)
+
+mysql> 
+mysql> # 17. Repeat Exercise 8 but list the guide name only once and sort the guide names in order by
+mysql> # last name.
+mysql> 
+mysql> SELECT DISTINCT(last_name), first_name
+    -> FROM guide, trip, trip_guides
+    -> WHERE guide.guide_num = trip_guides.guide_num
+    -> AND trip_guides.trip_id = trip.trip_id
+    -> AND type = 'Paddling'
+    -> ORDER BY last_name;
++-----------+------------+
+| last_name | first_name |
++-----------+------------+
+| Devon     | Harley     |
+| Kiley     | Susan      |
+| Stevens   | Lori       |
+| Unser     | Glory      |
++-----------+------------+
+4 rows in set (0.00 sec)
+
+mysql> 
+mysql> # 18. Repeat Exercise 11, but this time list only hiking trips in the state of New Hampshire (NH),
+mysql> # list each trip only once, and sort the results in descending order by trip name.
+mysql> 
+mysql> SELECT DISTINCT(trip_name)
+    -> FROM trip, reservation
+    -> WHERE trip.trip_id = reservation. trip_id
+    -> AND (type = 'Hiking' AND state = 'NH')
+    -> order by trip_name DESC;
++----------------------------------+
+| trip_name                        |
++----------------------------------+
+| Welch and Dickey Mountains Hike  |
+| Mt. Cardigan - Firescrew         |
+| Mount Garfield Hike              |
+| Mount Cardigan Hike              |
+| Crawford Path Presidentials Hike |
+| Black Pond                       |
+| Arethusa Falls                   |
++----------------------------------+
+7 rows in set (0.00 sec)
+
+mysql> 
+mysql> # Close the logfile before logging out
+mysql> 
+mysql> notee

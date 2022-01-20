@@ -1,0 +1,149 @@
+# Open a logfile so that program codes, outputs and any error messages from SQL can be stored 
+# as a text file.
+
+tee Daffern_Jeffrey_Ch6TAL.txt
+
+USE TAL;
+
+#1. PROGRAM DOCUMENTATION
+
+# Jeffrey Daffern
+
+# CSIS 1550 - 501
+
+# Ch.6 - Action Queries UsingTAL Distributors Database
+
+# 1. Create a NONGAME table with the structure shown in Figure 6-28.
+
+CREATE TABLE NONGAME
+(ITEM_NUM CHAR(4) PRIMARY KEY,
+DESCRIPTION CHAR(30),
+ON_HAND DECIMAL(4,0),
+CATEGORY CHAR(3),
+PRICE DECIMAL(6,2) );
+
+# Question: What SQL command would you use to check if the structure is correctly created?
+
+SHOW COLUMNS FROM NONGAME;
+
+# 2. Insert into the NONGAME table the records from the ITEM table for each item that is 
+# NOT in category GME.
+
+INSERT INTO NONGAME
+SELECT ITEM_NUM, DESCRIPTION, ON_HAND, CATEGORY, PRICE
+FROM ITEM
+WHERE CATEGORY != 'GME';
+
+# Question: How do check if all the correct records are copied from the ITEM table to the 
+# NONGAME table?
+
+SELECT * 
+FROM NONGAME;
+
+#3. In the NONGAME table, change the description of item number DL51 to “Classic Train Set.”
+
+UPDATE NONGAME
+SET DESCRIPTION = 'Classic Train Set'
+WHERE ITEM_NUM = 'DL51';
+
+# Question: How do you check if the correct change is made?
+
+SELECT *
+FROM NONGAME;
+
+# 4. In the NONGAME table, increase the price of each item in category TOY by 2%? 
+# (Hint: Multiply each price by 1.02.)
+
+UPDATE NONGAME
+SET PRICE = PRICE * 1.02
+WHERE CATEGORY = 'TOY';
+
+# Question: How do you check if the correct amount has been increased?
+
+SELECT *
+FROM NONGAME;
+
+# 5. Add the following item to the NONGAME table: Item number = TL92, 
+# Description = Dump Truck, Number of units on hand = 10, Category = TOY, Price = 59.95.
+
+INSERT INTO NONGAME
+VALUES
+('TL92', 'Dump Truck', '10', 'TOY', '59.95');
+
+# Question: How do you check if it is done correctly?
+
+SELECT *
+FROM NONGAME;
+
+# 6. Delete every item in the NONGAME table for which the category is PZL.
+
+DELETE FROM NONGAME
+WHERE CATEGORY = 'PZL';
+
+# Question: How do you check if the correct record has been deleted?
+
+SELECT *
+FROM NONGAME;
+
+# 7. In the NONGAME table, change the category for item FD11 to null.
+
+UPDATE NONGAME
+SET CATEGORY = NULL
+WHERE ITEM_NUM = 'FD11';
+
+# Question: How do you check if the change has been made to correct records?
+
+SELECT *
+FROM NONGAME;
+
+# 8. Add a column named ON_HAND_VALUE to the NONGAME table. The on-hand value
+# is a seven-digit number with two decimal places that represents the product 
+# of the number of units on hand and the price. Then set all values of 
+# ON_HAND_VALUE to ON_HAND * PRICE.
+
+ALTER TABLE NONGAME
+ADD ON_HAND_VALUE DECIMAL (7,2);
+
+UPDATE NONGAME
+SET ON_HAND_VALUE = ON_HAND * PRICE;
+
+# Question: How do you verify the accuracy of actions taken?
+
+SHOW COLUMNS FROM NONGAME;
+
+SELECT *
+FROM NONGAME;
+
+# 9. In the NONGAME table, increase the length of the DESCRIPTION column to 40 characters.
+
+ALTER TABLE NONGAME
+MODIFY DESCRIPTION CHAR(40);
+
+# Question: How do you check the DESCRIPTION column is changed to 40 characters?
+
+SHOW COLUMNS FROM NONGAME;
+
+# 10. Remove the NONGAME table from the TAL Distributors.
+
+DROP TABLE NONGAME;
+
+# Question: How do you check if the table has been deleted?
+
+SHOW TABLES;
+
+# 11. Use the Internet to find the SQL command to delete a column in a table in Oracle. 
+# Write the SQL command to delete the ON_HAND_VALUE column from the NONGAME table. 
+# Be sure to cite your references.
+
+# ALTER TABLE table_name SET UNUSED (column_name);
+# ALTER TABLE table_name SET UNUSED (column_name1, column_name2);
+# ALTER TABLE table_name DROP UNUSED COLUMNS;
+# OR 
+# ALTER TABLE table_name DROP COLUMN column_name;
+# ALTER TABLE table_name DROP (column_name1, column_name2);
+
+# https://oracle-base.com/articles/8i/dropping-columns
+
+# Close the logfile before logging out
+
+notee

@@ -1,0 +1,5 @@
+@Override
+	public String toString()
+	{
+		return movieName + ", " + length + ", " + rating + ", " + criticsRating + ", " + genre + ", " + description;
+	}

@@ -1,0 +1,161 @@
+# Open a logfile so that program codes, outputs and any error messages from SQL can be stored as a text file.
+
+mysql
+
+tee Daffern_Jeffrey_Ch4Colonial.txt
+
+USE colonial;
+
+#1. PROGRAM DOCUMENTATION
+
+# Jeffrey Daffern
+
+# CSIS 1550 - 501
+
+# Ch.4 - Single-table Queries Using Colonial Adventure Tours Database
+
+#1. List the last name of each guide that does not live in Massachusetts (MA).
+
+SELECT last_name
+FROM guide
+WHERE NOT state = 'MA';
+
+#2. List the trip name of each trip that has the type Biking.
+
+SELECT trip_name
+FROM trip
+WHERE type = 'Biking';
+
+#3. List the trip name of each trip that has the season Summer.
+
+SELECT trip_name 
+FROM trip
+WHERE season = 'Summer';
+
+#4. List the trip name of each trip that has the type Hiking and that has a 
+#distance longer than 10 miles.
+
+SELECT trip_name
+FROM trip
+WHERE type = 'Hiking' AND distance > '10';
+
+#5. List the customer number, customer last name, and customer first name of 
+#each customer that lives in New Jersey (NJ), New York (NY) or Pennsylvania (PA). 
+#Use the IN operator in your command.
+
+SELECT customer_num, last_name, first_name
+FROM customer
+WHERE state IN ('NJ', 'NY', 'PA');
+
+#6. Repeat Exercise 5 and sort the records by state in descending order and 
+#then by customer last name in ascending order.
+
+SELECT customer_num, last_name, first_name
+FROM customer
+WHERE state IN ('NJ', 'NY', 'PA')
+ORDER BY state DESC, last_name;
+
+#7. How many trips are in the states of Maine (ME) or Massachusetts (MA)?"
+
+SELECT COUNT(*)
+FROM trip
+WHERE state IN ('ME', 'MA');
+
+#8. How many trips originate in each state?
+
+SELECT state, COUNT(trip_id)
+FROM trip
+GROUP BY state
+ORDER BY state;
+
+#9. How many reservations include a trip price that is greater than $20 but less than $75?
+
+SELECT COUNT(trip_price)
+FROM reservation
+WHERE trip_price > '20' AND trip_price < '75';
+
+#10. How many trips of each type are there?
+
+SELECT type, COUNT(trip_id)
+FROM trip
+GROUP BY type
+ORDER BY type;
+
+#11. Colonial Adventure Tours calculates the total price of a trip by adding the 
+#trip price plus other fees and multiplying the result by the number of persons 
+#included in the reservation. List the reservation ID, trip ID, customer number, 
+#and total price for all reservations where the number of persons is greater than four. 
+#Use the column name TOTAL_PRICE for the calculated field.
+
+SELECT reservation_id, trip_id, customer_num, ((trip_price + other_fees) * num_persons) AS TOTAL_PRICE
+FROM reservation
+WHERE num_persons > 4;
+
+#12. Find the name of each trip containing the word “Pond”.
+
+SELECT trip_name
+FROM trip
+WHERE trip_name LIKE '%Pond%';
+
+#13. List the guide’s last name and guide’s first name for all guides that were 
+#hired before June 10, 2013.
+
+SELECT last_name, first_name
+FROM guide
+WHERE hire_date < '2013-06-10';
+
+#14. What is the average distance and the average maximum group size for each type of trip?
+
+SELECT type, AVG(distance), AVG(max_grp_size)
+FROM trip
+GROUP BY type
+ORDER BY type;
+
+#15. Display the different seasons in which trips are offered. List each season only once.
+
+SELECT DISTINCT(season)
+FROM trip;
+
+#16. List the reservation IDs for reservations that are for a paddling trip. (Hint: Use a subquery.)
+
+SELECT reservation_id
+FROM reservation
+WHERE trip_id IN (SELECT trip_id FROM trip WHERE type = 'Paddling');
+
+#17. What is the longest distance for a biking trip?
+
+SELECT MAX(distance)
+FROM trip
+WHERE type = 'Biking';
+
+#18. For each trip in the RESERVATION table that has more than one reservation, 
+#group by trip ID and sum the trip price. (Hint: Use the COUNT function and a HAVING clause.)
+
+SELECT trip_id, SUM(trip_price) 
+FROM reservation
+WHERE trip_id IN (SELECT trip_id FROM reservation GROUP BY trip_id HAVING COUNT(trip_id) > 1)
+GROUP BY trip_id
+ORDER BY trip_id;
+
+#19. How many current reservations does Colonial Adventure Tours have and what is the total
+#number of persons for all reservations?
+
+SELECT COUNT(*), SUM(num_persons)
+FROM reservation;
+
+#20. List the reservation ID and trip ID for all trips that occur in the month of July, 2016. 
+#There are multiple ways to create this query. Write an alternate command that would produce
+#the same result."
+
+SELECT reservation_id, trip_id
+FROM reservation
+WHERE trip_date BETWEEN '2016-07-01' AND '2016-07-31';
+
+SELECT reservation_id, trip_id
+FROM reservation
+WHERE trip_date >= '2016-07-01' AND trip_date <= '2016-07-31';
+# Close the logfile before logging out
+
+notee
+
+16, 18
